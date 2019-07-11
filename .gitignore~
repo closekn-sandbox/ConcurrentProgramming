@@ -1,7 +1,4 @@
 *.exe
 *.out
-*/*
-!*/*.c
-!*/Makefile
 /report/
 /sample/
