@@ -4,5 +4,6 @@
 */*
 !*/*.c
 !*/Makefile
+!*.md
 /report/
 /sample/
