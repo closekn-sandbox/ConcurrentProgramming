@@ -34,4 +34,7 @@ No lock file version <br>
 
 ### Run
 `> ./prod2cons` <br>
-Can confirm parallel access of producer process and consumer process of ring buffer which is shared memory
+Can confirm parallel access of producer process and consumer process of ring buffer which is shared memory. <br>
+
+Do the time taken from process creation as the final output as follows. <br>
+`<Real time>,<CPU time>` 
