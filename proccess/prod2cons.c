@@ -25,8 +25,8 @@ int semid;
 int shmid;
 
 //-- ope
-void P();
-void V();
+void opeP();
+void opeV();
 //-- process
 void producer(int prod_No, int pnum);
 void consumer(int cons_No, int cnum);
@@ -36,10 +36,10 @@ void release();
 int main(int argc, char *argv[])
 {
   int N;    // リングバッファサイズ
-  int l;    // プロデューサプロセス数
-  int L;    // プロデューサプロセスサイズ
-  int m;    // コンシューマプロセス数
-  int M;    // コンシューマプロセスサイズ
+  int P;    // プロデューサプロセス数
+  int C;    // コンシューマプロセス数
+  int L;    // 1以上の整数
+
   int n_prod, n_cons;
   int pid;
   int status;
@@ -49,20 +49,19 @@ int main(int argc, char *argv[])
   long double s, ns, cs;
 
   // 引数不足
-  if (argc < 6) {
+  if (argc < 5) {
     fprintf(stderr, "Usage: %s N n\n", argv[0]);
     fprintf(stderr, "N: size of ring buffer\n"
             "n: The number of production and consumption numbers\n");
     exit(1);
   }
   N = atoi(argv[1]);
-  l = atoi(argv[2]);
-  L = atoi(argv[3]);
-  m = atoi(argv[4]);
-  M = atoi(argv[5]);
+  P = atoi(argv[2]);
+  C = atoi(argv[3]);
+  L = atoi(argv[4]);
 
   // 不適なパラメタ
-  if (N <= 0 || l <= 0 || L <= 0 || m <= 0 || M <= 0 || l * L != m * M) {
+  if (N <= 0 || P <= 0 || C <= 0 || L <= 0 || P*C*L < 3*N ) {
     fprintf(stderr, "Parameter error\n");
     exit(2);
   }
@@ -102,33 +101,13 @@ int main(int argc, char *argv[])
   // 時間計測
   clock_gettime(CLOCK_REALTIME, &t_s);
 
-  //-- create consumer
-  n_cons = 0;
-  while(n_cons < M) {
-    pid = fork();
-    switch (pid) {
-      case 0:
-        consumer(n_cons, m);
-        exit(0);
-        break;
-      case -1:
-        printf("Fork error\n");
-        release();
-        exit(1);
-      default:
-        printf("Process id of consumer process %d is %d\n", n_cons, pid);
-        cmap[n_cons] = pid;
-        n_cons++;
-    }
-  }
-
   //-- create producer
   n_prod = 0;
-  while(n_prod < L) {
+  while(n_prod < P) {
     pid = fork();
     switch (pid) {
       case    0:
-        producer(n_prod, l);
+        producer(n_prod, P*L);
         exit(0);
         break;
       case    -1:
@@ -145,6 +124,27 @@ int main(int argc, char *argv[])
         n_prod++;
     }
   }
+
+  //-- create consumer
+  n_cons = 0;
+  while(n_cons < C) {
+    pid = fork();
+    switch (pid) {
+      case 0:
+        consumer(n_cons, C*L);
+        exit(0);
+        break;
+      case -1:
+        printf("Fork error\n");
+        release();
+        exit(1);
+      default:
+        printf("Process id of consumer process %d is %d\n", n_cons, pid);
+        cmap[n_cons] = pid;
+        n_cons++;
+    }
+  }
+
   // main process only reaches this position
   for (pnum = n_cons+n_prod; pnum > 0; pnum--) {
     pid = wait(&status);
@@ -177,7 +177,7 @@ int main(int argc, char *argv[])
 }
 
 //-- operation --
-void P()
+void opeP()
 {
   struct sembuf sops;
 
@@ -187,7 +187,7 @@ void P()
   semop(semid, &sops, 1);  // Omitt error handling
 }
 
-void V()
+void opeV()
 {
   struct sembuf sops;
 
@@ -209,16 +209,15 @@ void producer(int prod_No, int pnum)
     rnd = genrnd(20,80);
     // put random number into ring buffer
     while (1) {
-      P();
+      opeP();
       if (rbuf->bufsize > rbuf->n_item) { break; }
       // illegal state occurs and operation stops
       if (rbuf->bufsize < 0) {
-        V();
+        opeV();
         return;
       }
-      // reduce waste of CPU resource
-      usleep(1);
-      V();
+      usleep(1);  // reduce waste of CPU resource
+      opeV();
     }
     rbuf->buf[rbuf->wptr++] = rnd;
     rbuf->wptr %= rbuf->bufsize;
@@ -226,7 +225,8 @@ void producer(int prod_No, int pnum)
     printf("%d\n", rbuf->n_item);
     printf("P#%02d puts %2d, #item is %3d\n", prod_No, rnd, rbuf->n_item);
     fflush(stdout);
-    V();
+    opeV();
+    // 20~80ms sleep
     rnd = genrnd(20,80);
     usleep(rnd*1000);
   }
@@ -239,22 +239,23 @@ void consumer(int cons_No, int cnum)
   for (; cnum; cnum--) {
     // pick number from ring buffer
     while (1) {
-      P();
+      opeP();
       if (rbuf->n_item) { break; }
       // illegal state and stop operation
       if (rbuf->bufsize < 0) {
-        V();
+        opeV();
         return;
       }
       usleep(1); // reduce waste of CPU
-      V();
+      opeV();
     }
     rnd = rbuf->buf[rbuf->rptr++];
     rbuf->rptr %= rbuf->bufsize;
     rbuf->n_item--;
     printf("C#%02d gets %d, #item is %3d\n", cons_No, rnd, rbuf->n_item);
     fflush(stdout);
-    V();
+    // 取り出した値 ms sleep
+    opeV();
     usleep(rnd*1000);
   }
 }
