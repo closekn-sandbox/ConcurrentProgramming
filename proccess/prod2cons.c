@@ -60,32 +60,40 @@ int main(int argc, char *argv[])
   L = atoi(argv[3]);
   m = atoi(argv[4]);
   M = atoi(argv[5]);
+
+  // 不適なパラメタ
   if (N <= 0 || l <= 0 || L <= 0 || m <= 0 || M <= 0 || l * L != m * M) {
     fprintf(stderr, "Parameter error\n");
     exit(2);
   }
+
+  // 共有メモリセグメント割り当て
   shmid = shmget(IPC_PRIVATE, sizeof(struct ringbuf) + (N-1)*sizeof(int), IPC_CREAT | 0666);
-  if (shmid == -1) {
+  if (shmid == -1) {  // エラー
     perror("shmget");
     exit(1);
   }
+
+  // 共有メモリをリングバッファに割り当て
   rbuf = (struct ringbuf *)shmat(shmid, NULL, 0);
-  if (rbuf == (struct ringbuf *)-1) {
+  if (rbuf == (struct ringbuf *)-1) { // エラー
     perror("shmat");
     exit(1);
   }
   rbuf->bufsize = N;
   rbuf->n_item = 0;
   rbuf->wptr = rbuf->rptr = 0;
+
+  // セマフォ集合の識別子
   semid = semget(IPC_PRIVATE, 1, IPC_CREAT | 0666);
-  if (semid == -1) {
+  if (semid == -1) {  // エラー
     perror("semget");
     if (shmctl(shmid, IPC_RMID, NULL)) { // release shared memory area
         perror("shmctl");
     }
     exit(1);
   }
-  if (semctl(semid, 0, SETVAL, 1) == -1) {
+  if (semctl(semid, 0, SETVAL, 1) == -1) {  // セマフォ制御操作エラー
     perror("semctl at initializing value of semaphore");
     release();
     exit(1);
