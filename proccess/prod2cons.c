@@ -99,8 +99,10 @@ int main(int argc, char *argv[])
     exit(1);
   }
 
+  // 時間計測
   clock_gettime(CLOCK_REALTIME, &t_s);
-  // create consumer
+
+  //-- create consumer
   n_cons = 0;
   while(n_cons < M) {
     pid = fork();
@@ -114,16 +116,13 @@ int main(int argc, char *argv[])
         release();
         exit(1);
       default:
-#ifdef WITH_NOT_DEBUG
-#else
         printf("Process id of consumer process %d is %d\n", n_cons, pid);
-#endif
         cmap[n_cons] = pid;
         n_cons++;
     }
   }
 
-  // create producer
+  //-- create producer
   n_prod = 0;
   while(n_prod < L) {
     pid = fork();
@@ -141,10 +140,7 @@ int main(int argc, char *argv[])
         release();
         exit(1);
       default:
-#ifdef WITH_NOT_DEBUG
-#else
         printf("Process id of producer process %d is %d\n", n_prod, pid);
-#endif
         pmap[n_prod] = pid;
         n_prod++;
     }
@@ -154,20 +150,14 @@ int main(int argc, char *argv[])
     pid = wait(&status);
     for (nid = 0; nid < n_cons; nid++) {
       if (pid == cmap[nid]) {
-#ifdef WITH_NOT_DEBUG
-#else
         printf("Consumer %d finished at %ld\n", nid, time(NULL));
-#endif
         break;
       }
     }
     if (nid != n_cons) { continue; }
     for (nid = 0; nid < n_prod; nid++) {
       if (pid == pmap[nid]) {
-#ifdef WITH_NOT_DEBUG
-#else
         printf("Producer %d finished at %ld\n", nid, time(NULL));
-#endif
         break;
       }
     }
@@ -213,10 +203,7 @@ void producer(int prod_No, int pnum)
 {
   int rnd;
 
-#ifdef WITH_NOT_DEBUG
-#else
   printf("I am producer process.\n");
-#endif
   srand(time(NULL) ^ (prod_No << 8));
   for (; pnum; pnum--) {
     rnd = genrnd(20,80);
@@ -236,11 +223,8 @@ void producer(int prod_No, int pnum)
     rbuf->buf[rbuf->wptr++] = rnd;
     rbuf->wptr %= rbuf->bufsize;
     rbuf->n_item++;
-#ifdef WITH_NOT_DEBUG
     printf("%d\n", rbuf->n_item);
-#else
     printf("P#%02d puts %2d, #item is %3d\n", prod_No, rnd, rbuf->n_item);
-#endif
     fflush(stdout);
     V();
     rnd = genrnd(20,80);
@@ -251,10 +235,7 @@ void producer(int prod_No, int pnum)
 void consumer(int cons_No, int cnum)
 {
   int rnd;
-#ifdef WITH_NOT_DEBUG
-#else
   printf("I am consuer process.\n");
-#endif
   for (; cnum; cnum--) {
     // pick number from ring buffer
     while (1) {
@@ -271,11 +252,7 @@ void consumer(int cons_No, int cnum)
     rnd = rbuf->buf[rbuf->rptr++];
     rbuf->rptr %= rbuf->bufsize;
     rbuf->n_item--;
-#ifdef WITH_NOT_DEBUG
-    printf("%d\n", rbuf->n_item);
-#else
     printf("C#%02d gets %d, #item is %3d\n", cons_No, rnd, rbuf->n_item);
-#endif
     fflush(stdout);
     V();
     usleep(rnd*1000);
