@@ -31,3 +31,7 @@ No lock file version <br>
 
 ### Compile
 `> make`
+
+### Run
+`> ./prod2cons` <br>
+Can confirm parallel access of producer process and consumer process of ring buffer which is shared memory
