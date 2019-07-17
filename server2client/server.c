@@ -41,7 +41,7 @@ int main(int argc, char *argv[]) {
   close(fd);
   // コネクション要求受付用のソケット確保
   if ((sockid = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-    err_msg("srever: can't open datastream socket");
+    err_msg("server: can't open datastream socket");
   }
   // ソケットとポートの対応づけ
   port_no = SERV_TCP_PORT;
@@ -50,11 +50,11 @@ int main(int argc, char *argv[]) {
   serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
   serv_addr.sin_port	  = htons(port_no);
   if (bind(sockid, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0) {
-    err_msg("srever: can't bind local address");
+    err_msg("server: can't bind local address");
   }
   // 受動オープン状態へ移行
   if (listen(sockid, 5) == -1) {
-    err_msg("srever: listen failed");
+    err_msg("server: listen failed");
   }
   
   //-- 反復

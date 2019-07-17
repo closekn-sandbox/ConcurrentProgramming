@@ -3,7 +3,10 @@
 ## directory
 
 - server2client (Network Program (socket by TCP))
-- (Process level parallel processing)
+  - server.c
+  - client.c
+- proccess (Shared memory access consisting of producer and consumer processes)
+  - prod2cons.c
 - (Thread level parallel processing)
 
 ## server2client
@@ -23,3 +26,8 @@ No lock file version <br>
 > server-name : Server-side's name or IP <br>
 > client-name : A name that can identify the client that is running this program <br>
 > repeat-count : Number of times to repeat message sending and receiving
+
+## proccess
+
+### Compile
+`> make`
