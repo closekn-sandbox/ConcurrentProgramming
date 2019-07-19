@@ -2,14 +2,16 @@
 
 ## directory
 
-- server2client (Network Program (socket by TCP))
+- TCP (Network Program (socket by TCP))
   - server.c
   - client.c
-- proccess (Shared memory access consisting of producer and consumer processes)
-  - prod2cons.c
-- (Thread level parallel processing)
+- proccess
+  - prod2cons.c (Producer Consumer Problem)
+- Thread
+  - determinant.c ()
+  - prod2cons.c (Producer Consumer Problem)
 
-## server2client
+## TCP
 
 ### Compile
 `> make`
@@ -38,3 +40,5 @@ Can confirm parallel access of producer process and consumer process of ring buf
 
 Do the time taken from process creation as the final output as follows. <br>
 `<Real time>,<CPU time>` 
+
+## thread
