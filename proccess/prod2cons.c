@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
   L = atoi(argv[4]);
 
   // 不適なパラメタ
-  if (N <= 0 || P <= 0 || C <= 0 || L <= 0 || P*C*L < 3*N ) {
+  if (N < 15 || P <= 0 || C <= 0 || L <= 0 || P*C*L < 3*N ) {
     fprintf(stderr, "Parameter error\n");
     exit(2);
   }
