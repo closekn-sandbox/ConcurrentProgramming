@@ -6,10 +6,10 @@
   - server.c
   - client.c
 - proccess
-  - prod2cons.c (Producer Consumer Problem)
+  - prod2cons.c (Producer Consumer Problem using proccess)
 - Thread
-  - determinant.c ()
-  - prod2cons.c (Producer Consumer Problem)
+  - determinant.c (Calculation of determinant using threads)
+  - prod2cons.c (Producer Consumer Problem using threads)
 
 ## TCP
 
