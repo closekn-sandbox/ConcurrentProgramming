@@ -10,6 +10,9 @@
 - Thread
   - determinant.c (Calculation of determinant using threads)
   - prod2cons.c (Producer Consumer Problem using threads)
+- janken (socket by TCP)
+  - parent.c
+  - child.c
 
 ## TCP
 
@@ -52,4 +55,11 @@ Do the time taken from process creation as the final output as follows. <br>
 ### prod2cons
 `> ./prod2cons <buffer-size> <number-of-producer> <number-of-consumer> <repeat-count>` <br>
 
+## janken
 
+### Compile
+`> make`
+
+### parent
+
+### child
