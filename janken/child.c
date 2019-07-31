@@ -105,7 +105,6 @@ int main(int argc, char *argv[]) {
         next_hand = 0; next_result = 1;
       }
     }
-    
 
     // result
     while ( next_result ) {
@@ -130,7 +129,6 @@ int main(int argc, char *argv[]) {
 
 // 0-2の乱数生成
 int choose_hand() {
-  //return (int)(rand()*(3.0)/(1.0+RAND_MAX));
   return genrand_int32()%3;
 }
 

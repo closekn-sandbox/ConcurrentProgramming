@@ -15,6 +15,7 @@
 #define NAME_LEN      10
 #define MAX_JOIN      3
 #define SEND_HAND     "\nグー:0 チョキ:1 パー:2\n> "
+#define ONE_MORE      "\nもう一回? YES:1 NO:0\n> "
 
 char* hand_kind[3] = { "グー", "チョキ", "パー" };
 char* result_kind[3] = { "勝ち", "負け", "引き分け" };
@@ -140,7 +141,7 @@ int main(int argc, char *argv[]) {
       }
     }
     
-    fprintf(stderr, "\nOne more? YES:1 NO:0\n> ");
+    fprintf(stderr, ONE_MORE);
     fscanf(stdin, "%d", &next_play);
     for ( i = 1; i < join_num; i++ ) {
       memset(&send_msg, 0x0, BYTE);
