@@ -7,14 +7,17 @@
 #include <sys/socket.h>
 #include <unistd.h>
 #include <netdb.h>
+#include <time.h>
+#include "MT.h"
 
 #define	SERV_TCP_PORT 20000 // port_no
 #define SLEEP_TIME    4000  // ms
 #define BYTE          100   // msg byte
-#define IDENT_BYTE    35    // ident byte
+#define IDENT_BYTE    10    // ident byte
 
 //-- func
 void err_msg(char *msg);
+int choose_hand();
 
 int main(int argc, char *argv[]) {
   char *sname;                 // argv[1] server name
@@ -24,8 +27,17 @@ int main(int argc, char *argv[]) {
   int ipaddr;                  // server IP
   int port_no;                 // port number
   int sockfd;                  // socket
+  char read_msg[BYTE];
+  char send_msg[BYTE];
   // flag
-  int join;
+  int next_play;
+  int next_hand;
+  int next_result;
+  int next_read;
+  int next_send;
+
+  //init rand
+  init_genrand((unsigned)time(NULL));
 
   // 引数不足 > ./child <server-name> <identifier>
   if ( argc < 3 ) {
@@ -61,7 +73,7 @@ int main(int argc, char *argv[]) {
     err_msg("client: can't open datastream socket");
   }
     
-  // 能動オープン(コネクション要求)
+  // 能動オープン(コネクション要求) join
   if (connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0) {
     err_msg("client: can't connect server address");
   }
@@ -70,15 +82,56 @@ int main(int argc, char *argv[]) {
   fcntl(sockfd, F_SETFL, O_NONBLOCK);
 
   //-- janken
-  while ( 1 ) {
+  next_play = 1;
+  next_hand = 1;
+  next_result = 0;
+  next_read = 1;
+  next_send = 0;
+  while ( next_play ) {
+    // hand
+    while ( next_hand ) {
+      if ( next_read ) {
+        if ( recv(sockfd, read_msg, BYTE, 0) != -1 ) {
+          next_read = 0; next_send = 1;
+        }
+      }
+      if ( next_send ) {
+        int res; // ts
+        fprintf(stderr, "%s\n", read_msg);
+        memset(&send_msg, 0x0, BYTE); /* pading */
+        sprintf(send_msg, "%s %d ", identifier, choose_hand());
+        send(sockfd, send_msg, BYTE, 0);
+        next_send = 0; next_read = 1;
+        next_hand = 0; next_result = 1;
+      }
+    }
     
-    break;//
+
+    // result
+    while ( next_result ) {
+      if ( recv(sockfd, read_msg, BYTE, 0) != -1 ) {
+        fprintf(stderr, "%s\n", read_msg);
+        next_read = 0; next_send = 1;
+        next_result = 0;
+      }
+    }
+
+    if ( recv(sockfd, read_msg, BYTE, 0) != -1 ) {
+      sscanf(read_msg, "%d", &next_play);
+      if ( next_play ) { next_hand = 1; }
+    }
   }
 
   // end
   close(sockfd);
 
   return 0;
+}
+
+// 0-2の乱数生成
+int choose_hand() {
+  //return (int)(rand()*(3.0)/(1.0+RAND_MAX));
+  return genrand_int32()%3;
 }
 
 // エラーメッセージ
