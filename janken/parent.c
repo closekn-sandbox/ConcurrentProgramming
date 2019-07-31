@@ -13,7 +13,7 @@
 #define	SERV_TCP_PORT 20000 // port_no
 #define BYTE          100   // msg byte
 #define NAME_LEN      10
-#define MAX_JOIN      3
+#define MAX_JOIN      4
 #define SEND_HAND     "\nグー:0 チョキ:1 パー:2\n> "
 #define ONE_MORE      "\nもう一回? YES:1 NO:0\n> "
 
