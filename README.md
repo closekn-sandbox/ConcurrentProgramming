@@ -11,8 +11,9 @@
   - determinant.c (Calculation of determinant using threads)
   - prod2cons.c (Producer Consumer Problem using threads)
 - janken (socket by TCP)
-  - parent.c
-  - child.c
+  - parent.c (Host-Server & player)
+  - child.c (CPU)
+  - MT.h (http://www.sat.t.u-tokyo.ac.jp/~omi/code/MT.h)
 
 ## TCP
 
@@ -61,5 +62,7 @@ Do the time taken from process creation as the final output as follows. <br>
 `> make`
 
 ### parent
+`> ./parent` <br>
 
 ### child
+`> ./child <server-name> <identifier>` <br>
