@@ -49,10 +49,7 @@ int main(int argc, char *argv[]) {
   int next_read;
   int next_send;
   
-
   // 引数不足
-
-  // ログファイル指定
 
   // コネクション要求受付用のソケット確保
   if ((sockid = socket(AF_INET, SOCK_STREAM, 0)) < 0) {

@@ -63,6 +63,8 @@ Do the time taken from process creation as the final output as follows. <br>
 
 ### parent
 `> ./parent` <br>
+Open port 20000
 
 ### child
-`> ./child <server-name> <identifier>` <br>
+`> ./child <server-name> <CPU-name>` <br>
+> server-name : Name of server on which parent program is running
